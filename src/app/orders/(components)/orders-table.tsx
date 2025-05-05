@@ -188,7 +188,7 @@ export const OrdersTable = ({ orders, onOrderClickAction }: OrdersTableProps) =>
                 </Text>
               </Table.Td>
               <Table.Td>
-                <Button size="xs" onClick={() => handleNavigate(order)}>
+                <Button size="xs">
                   View
                 </Button>
               </Table.Td>
