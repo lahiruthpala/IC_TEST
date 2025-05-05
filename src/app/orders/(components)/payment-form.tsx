@@ -44,9 +44,10 @@ interface PaymentFormProps {
   customer?: Customer;
 }
 
-export function PaymentForm({ orderId, amount, currency, customer}: PaymentFormProps) {
+export function PaymentForm({ orderId, currency, customer}: PaymentFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { useOrder } = useOrderHooks();
+  console.log(customer)
   const { data: order, isLoading, error } = useOrder(orderId);
 
   // Initialize form with customer data if available
