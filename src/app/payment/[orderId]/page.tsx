@@ -6,14 +6,10 @@ import PaymentForm from '@/app/orders/(components)/payment-form';
 import { createPayhereCheckout } from '@/lib/payhere/paymentService';
 import { getOrder } from '@/lib/store/orders/db';
 
-interface PaymentPageProps {
-    params: {
-        orderId: string;
-    };
-}
+type Params = Promise<{ orderId: string }>;
 
-export default async function PaymentPage({ params }: PaymentPageProps) {
-    const { orderId } = params;
+export default async function PaymentPage({ params }: { params: Params; }) {
+    const { orderId } = await params;
 
     try {
         // 1. Fetch order details
