@@ -1,12 +1,22 @@
-// components/OrdersTable.tsx
 'use client';
 
+import React from 'react';
+import { useRouter } from 'next/navigation';
 import { IconPackage } from '@tabler/icons-react';
-import { Badge, Button, Card, Divider, Group, Paper, Stack, Table, Text } from '@mantine/core';
+import {
+  Badge,
+  Button,
+  Card,
+  Divider,
+  Group,
+  Paper,
+  Stack,
+  Table,
+  Text,
+} from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { Order, OrderStatus } from '@/lib/store/types';
 import { formatCurrency, formatDate } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
 
 interface OrdersTableProps {
   orders: Order[];
@@ -21,23 +31,24 @@ const statusColorMap: Record<OrderStatus, string> = {
   shipped: 'cyan',
   delivered: 'green',
   cancelled: 'red',
-  'payment pending':   'orange',
+  'payment pending': 'orange',
   'payment cancelled': 'red',
-  'payment failed':    'red',
-  'charged back':      'purple',
-  failed:              'red',
+  'payment failed': 'red',
+  'charged back': 'purple',
+  failed: 'red',
 };
 
-const getStatusColor = (status: OrderStatus): string => {
-  return statusColorMap[status] || 'gray';
-};
+const getStatusColor = (status: OrderStatus): string => statusColorMap[status] || 'gray';
 
-export const OrdersTable = ({ orders, onOrderClickAction}: OrdersTableProps) => {
+export const OrdersTable = ({ orders, onOrderClickAction }: OrdersTableProps) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const router = useRouter();
-  const handlePayNow = (order: Order) => {
-    router.push(`/payment/${order.id}`)
-  }
+
+  // Build a query string with encoded order data
+  const handleNavigate = (order: Order) => {
+    router.push(`/order/${order.id}`);
+  };
+
   if (isMobile) {
     return (
       <Stack>
@@ -48,51 +59,67 @@ export const OrdersTable = ({ orders, onOrderClickAction}: OrdersTableProps) => 
             </Text>
           </Paper>
         ) : (
-          orders.map((order) => (
+          orders.map(order => (
             <Card
               key={order.id}
               shadow="sm"
               padding="md"
               radius="md"
               withBorder
-              style={{ cursor: 'pointer' }}
             >
               <Stack gap="xs">
                 <Group justify="space-between">
-                  <Text fw={500} size="sm">Order ID</Text>
-                  <Text size="sm" c="dimmed">{order.id.substring(0, 8)}...</Text>
+                  <Text fw={500} size="sm">
+                    Order ID
+                  </Text>
+                  <Text size="sm" c="dimmed">
+                    {order.id.substring(0, 8)}...
+                  </Text>
                 </Group>
 
                 <Group justify="space-between">
-                  <Text fw={500} size="sm">Date</Text>
-                  <Text size="sm" c="dimmed">{formatDate(order.created_at)}</Text>
+                  <Text fw={500} size="sm">
+                    Date
+                  </Text>
+                  <Text size="sm" c="dimmed">
+                    {formatDate(order.created_at)}
+                  </Text>
                 </Group>
 
                 <Group justify="space-between">
-                  <Text fw={500} size="sm">Status</Text>
+                  <Text fw={500} size="sm">
+                    Status
+                  </Text>
                   <Badge color={getStatusColor(order.status)} variant="light">
                     {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                   </Badge>
                 </Group>
 
                 <Group justify="space-between">
-                  <Text fw={500} size="sm">Items</Text>
+                  <Text fw={500} size="sm">
+                    Items
+                  </Text>
                   <Group gap="xs">
                     <IconPackage size={16} />
-                    <Text size="sm" c="dimmed">{(order.items || []).length}</Text>
+                    <Text size="sm" c="dimmed">
+                      {(order.items || []).length}
+                    </Text>
                   </Group>
                 </Group>
 
                 <Divider />
 
                 <Group justify="space-between">
-                  <Text fw={500} size="sm">Total</Text>
-                  {/* Force EUR */}
-                  <Text size="sm" fw={600}>{formatCurrency(order.total_amount)}</Text>
+                  <Text fw={500} size="sm">
+                    Total
+                  </Text>
+                  <Text size="sm" fw={600}>
+                    {formatCurrency(order.total_amount)}
+                  </Text>
                 </Group>
 
-                <Button fullWidth onClick={() => handlePayNow(order)}>
-                  Pay Now
+                <Button fullWidth mt="sm" onClick={() => handleNavigate(order)}>
+                  View Order
                 </Button>
               </Stack>
             </Card>
@@ -134,10 +161,12 @@ export const OrdersTable = ({ orders, onOrderClickAction}: OrdersTableProps) => 
             </Table.Td>
           </Table.Tr>
         ) : (
-          orders.map((order) => (
-            <Table.Tr key={order.id} style={{ cursor: 'pointer' }}>
+          orders.map(order => (
+            <Table.Tr key={order.id} onClick={() => onOrderClickAction(order)} style={{ cursor: 'pointer' }}>
               <Table.Td>
-                <Text size="sm" fw={500}>{order.id.substring(0, 8)}...</Text>
+                <Text size="sm" fw={500}>
+                  {order.id.substring(0, 8)}...
+                </Text>
               </Table.Td>
               <Table.Td>
                 <Text size="sm">{formatDate(order.created_at)}</Text>
@@ -154,11 +183,13 @@ export const OrdersTable = ({ orders, onOrderClickAction}: OrdersTableProps) => 
                 </Group>
               </Table.Td>
               <Table.Td>
-                <Text size="sm" fw={500}>{formatCurrency(order.total_amount)}</Text>
+                <Text size="sm" fw={500}>
+                  {formatCurrency(order.total_amount)}
+                </Text>
               </Table.Td>
               <Table.Td>
-                <Button fullWidth onClick={() => handlePayNow(order)}>
-                  Pay Now
+                <Button size="xs" onClick={() => handleNavigate(order)}>
+                  View
                 </Button>
               </Table.Td>
             </Table.Tr>

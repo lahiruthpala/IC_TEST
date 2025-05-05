@@ -1,4 +1,4 @@
-// app/page.tsx- Server Component
+// app/page.tsx - Server Component
 import { Metadata } from 'next';
 import ClientHomePage from './home-client';
 

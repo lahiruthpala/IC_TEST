@@ -6,7 +6,31 @@ import { PaymentRecordInput } from './paymentService';
 export async function getOrderById(orderId: string) {
   const { data, error } = await supabaseServer
     .from('orders')
-    .select('id')
+    .select(`
+      id,
+      user_id,
+      total_amount,
+      users:user_id (
+        first_name,
+        last_name,
+        aiesec_email
+      )
+    `)
+    .eq('id', orderId)
+    .single();
+  if (error) {
+    if (error.code === 'PGRST116') {
+      throw new NotFoundError(`Order with ID ${orderId} not found`);
+    }
+    throw error;
+  }
+  return data;
+}
+
+export async function getUserInfoFromOderID(orderId: string) {
+  const { data, error } = await supabaseServer
+    .from('orders')
+    .select('user_id')
     .eq('id', orderId)
     .single();
   if (error) {
