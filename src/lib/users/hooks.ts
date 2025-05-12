@@ -275,20 +275,26 @@ export function useUserPaymentStatus() {
 }
 
 /**
- * Hook to fetch delegate payment details
+ * Hook to fetch delegate payment details (automatically gets current user's ID)
  */
-export function useDelegatePaymentDetails(userId: string) {
+export function useDelegatePaymentDetails() {
+  const { data: user } = useCurrentUserProfile(); // Using existing hook to get user
+  
   return useQuery({
-    queryKey: ['delegatePaymentDetails', userId],
+    queryKey: ['delegatePaymentDetails', user?.user.kinde_id],
     queryFn: async () => {
-      const response = await fetch(`/api/payments/latest?user_id=${userId}&type=delegate`);
+      if (!user?.user.kinde_id) {
+        return null;
+      }
+      
+      const response = await fetch(`/api/payments/latest?user_id=${user.user.kinde_id}&type=delegate`);
       if (!response.ok) {
         throw new Error('Failed to fetch delegate payment details');
       }
       const data = await response.json();
-      return data || null; // Explicitly return null if no data
+      return data || null;
     },
-    enabled: !!userId // Only run if userId exists
+    enabled: !!user?.user.kinde_id // Only run if we have a user ID
   });
 }
 

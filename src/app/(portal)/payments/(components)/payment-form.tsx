@@ -46,8 +46,8 @@ interface PaymentFormProps {
 
 export function PaymentForm({ currency, customer }: PaymentFormProps) {
   const queryClient = useQueryClient();
-const { data: paymentStatus } = useUserPaymentStatus();
-const { data: paymentDetails, isLoading, error } = useDelegatePaymentDetails();
+  const { data: paymentStatus } = useUserPaymentStatus();
+  const { data: paymentDetails, isLoading, error } = useDelegatePaymentDetails();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm({
@@ -280,11 +280,7 @@ const { data: paymentDetails, isLoading, error } = useDelegatePaymentDetails();
             </Group>
             <Badge
               color={
-                paymentStatus === 'paid'
-                  ? 'green'
-                  : paymentStatus === 'pending'
-                    ? 'yellow'
-                    : 'red'
+                paymentStatus === 'paid' ? 'green' : paymentStatus === 'pending' ? 'yellow' : 'red'
               }
               variant="light"
             >
