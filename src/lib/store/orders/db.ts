@@ -4,24 +4,17 @@ import {
   CreateOrderInputExtended,
   CreateOrderItemInput,
   CreateOrderPackItem,
-<<<<<<< HEAD
   ItemQuantitySearchParams,
   ItemWithQuantity,
-=======
->>>>>>> 63a0d2e063c5310010489b06ff3741cf561102f0
   Order,
   OrderAuditInfo,
   OrderItem,
   OrderItemExtended,
   OrderStatus,
-<<<<<<< HEAD
   PackWithQuantity,
 } from '@/lib/store/types';
 import { getActiveStoreItems } from '../items/db';
 import { getActiveStorePacks } from '../packs/db';
-=======
-} from '@/lib/store/types';
->>>>>>> 63a0d2e063c5310010489b06ff3741cf561102f0
 
 type OrderWithNestedItems = Omit<Order, 'items'> & {
   order_items: OrderItemExtended[];
@@ -507,7 +500,6 @@ export async function getOrderAudit(orderId: string): Promise<OrderAuditInfo> {
     last_status_change: data.last_status_change || '',
   };
 }
-<<<<<<< HEAD
 
 /**
  * Fetch aggregated item quantities from the database
@@ -614,5 +606,3 @@ export async function searchItemQuantities(
     throw error;
   }
 }
-=======
->>>>>>> 63a0d2e063c5310010489b06ff3741cf561102f0

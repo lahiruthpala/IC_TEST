@@ -44,9 +44,5 @@ export default withAuth(
 );
 
 export const config = {
-<<<<<<< HEAD
   matcher: ['/((?!api/|_next/static|_next/image|favicon.ico|ysf).*)'],
-=======
-  matcher: ['/((?!api/|_next/static|_next/image|favicon.ico).*)'],
->>>>>>> 63a0d2e063c5310010489b06ff3741cf561102f0
 };
