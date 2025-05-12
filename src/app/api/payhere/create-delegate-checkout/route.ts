@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     const amount = ['MCPc', 'MCPe'].includes(customer.position) ? 100 : 70;
     const formattedAmount = amount.toFixed(2);
     const currency = 'EUR';
-    const orderId = `delegate-${uuidv4()}`; // Generate unique order ID
+    const orderId = `${uuidv4()}`; // Generate unique order ID
 
     const hashedSecret = crypto
       .createHash('md5')
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
       ? 'https://www.payhere.lk/pay/checkout'
       : 'https://sandbox.payhere.lk/pay/checkout';
 
-    const fields = {
+    const fields: Record<string, string> = {
       merchant_id: merchantId,
       return_url: returnUrl,
       cancel_url: cancelUrl,
