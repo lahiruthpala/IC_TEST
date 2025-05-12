@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAdmin, withAuth } from '@/lib/auth/utils';
 import { RouteContext } from '@/lib/common-types';
+<<<<<<< HEAD
 import { errorResponse, ValidationError } from '@/lib/core/errors';
+=======
+import { AuthorizationError, errorResponse, ValidationError } from '@/lib/core/errors';
+>>>>>>> 63a0d2e063c5310010489b06ff3741cf561102f0
 import { getOrder, getOrderAudit, getUserOrderById, updateOrderStatus } from '@/lib/store/orders/db';
 import { validateOrderStatus } from '@/lib/store/orders/validators';
 import { OrderStatus } from '@/lib/store/types';

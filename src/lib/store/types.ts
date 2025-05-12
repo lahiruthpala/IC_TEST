@@ -299,6 +299,7 @@ export interface StorePackListResponse {
   packs: StorePack[];
   total: number;
 }
+<<<<<<< HEAD
 
 /**
  * Response for a list of item quantities
@@ -325,3 +326,5 @@ export interface ItemQuantitySearchParams {
   limit: number;
   offset: number;
 }
+=======
+>>>>>>> 63a0d2e063c5310010489b06ff3741cf561102f0

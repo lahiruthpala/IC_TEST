@@ -211,6 +211,7 @@ export function useOrderHooks() {
     useUpdateOrderStatus,
   };
 }
+<<<<<<< HEAD
 
 /**
  * Hook for item quantity-related operations
@@ -236,3 +237,5 @@ export function useItemQuantityHooks() {
     useItemQuantities
   };
 }
+=======
+>>>>>>> 63a0d2e063c5310010489b06ff3741cf561102f0

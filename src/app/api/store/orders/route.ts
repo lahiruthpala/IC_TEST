@@ -142,7 +142,10 @@ export async function POST(request: NextRequest) {
               }
             } else {
               // Regular item
+<<<<<<< HEAD
               // eslint-disable-next-line no-lonely-if
+=======
+>>>>>>> 63a0d2e063c5310010489b06ff3741cf561102f0
               if ('item_code' in item && 'quantity' in item && 'price' in item) {
                 const regularItem: CreateOrderItemInput = {
                   item_code: String(item.item_code),
