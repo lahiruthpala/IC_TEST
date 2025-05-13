@@ -11,17 +11,11 @@ import {
   CreateOrderPackItem,
   Order,
   OrderStatus,
+  PayhereCheckoutInput,
+  PayhereCheckoutResponse,
+  PlaceOrderInput,
+  UpdateOrderStatusInput,
 } from '@/lib/store/types';
-
-interface PlaceOrderInput {
-  items: (CartItem | CartPackItem)[];
-  total_amount: number;
-}
-
-interface UpdateOrderStatusInput {
-  orderId: string;
-  status: OrderStatus;
-}
 
 /**
  * Hook for order-related operations
@@ -219,12 +213,39 @@ export function useOrderHooks() {
     });
   };
 
+  const usePayhereCheckout = () => {
+  return useMutation<PayhereCheckoutResponse, Error, PayhereCheckoutInput>({
+    mutationFn: async (payload: PayhereCheckoutInput) => {
+      const response = await fetch('/api/payhere/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to create checkout session');
+      }
+
+      return response.json();
+    },
+    onError: (error) => {
+      notifications.show({
+        title: 'Payment Error',
+        message: error.message,
+        color: 'red',
+      });
+    },
+  });
+};
+
   return {
     useUserOrders,
     useAllOrders,
     useOrder,
     usePlaceOrder,
     useUpdateOrderStatus,
+    usePayhereCheckout
   };
 }
 
