@@ -41,6 +41,9 @@ export function useOrderHooks() {
         }
         return response.json();
       },
+      refetchOnMount: true, // Always fetch fresh data when component mounts
+      refetchOnWindowFocus: true, // Optionally fetch again if user switches back to tab
+      staleTime: 0, // Consider data stale immediately so it's always fresh
     });
   };
 
@@ -105,18 +108,18 @@ export function useOrderHooks() {
                 image: packItem.image,
               })),
               // Add selected optional item if it exists
-            ...(item.selected_optional_item && {
-              selected_optional_item: {
-                item_code: item.selected_optional_item.item_code,
-                quantity: item.selected_optional_item.quantity || 1,
-                price: 0,
-                size: item.selected_optional_item.size,
-                color: item.selected_optional_item.color,
-                color_hex: item.selected_optional_item.colorHex,
-                name: item.selected_optional_item.name,
-                image: item.selected_optional_item.image,
-              }
-            })
+              ...(item.selected_optional_item && {
+                selected_optional_item: {
+                  item_code: item.selected_optional_item.item_code,
+                  quantity: item.selected_optional_item.quantity || 1,
+                  price: 0,
+                  size: item.selected_optional_item.size,
+                  color: item.selected_optional_item.color,
+                  color_hex: item.selected_optional_item.colorHex,
+                  name: item.selected_optional_item.name,
+                  image: item.selected_optional_item.image,
+                },
+              }),
             };
 
             orderItems.push(packItemInput);
@@ -230,7 +233,7 @@ export function useOrderHooks() {
  */
 export function useItemQuantityHooks() {
   const queryClient = useQueryClient();
-  
+
   const useItemQuantities = () => {
     return useQuery({
       queryKey: ['itemQuantities'],
@@ -246,6 +249,6 @@ export function useItemQuantityHooks() {
   };
 
   return {
-    useItemQuantities
+    useItemQuantities,
   };
 }
