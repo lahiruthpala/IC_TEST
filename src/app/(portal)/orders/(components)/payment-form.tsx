@@ -1,3 +1,4 @@
+// (portal)/orders/(components)/payment-form.tsx
 'use client';
 
 import React, { useState } from 'react';
@@ -38,9 +39,9 @@ interface Customer {
 
 interface PaymentFormProps {
   orderId: string;
-  amount: string;
   currency: string;
   customer?: Customer;
+  amount?: string;
 }
 
 export function PaymentForm({ orderId, currency, customer }: PaymentFormProps) {
@@ -110,7 +111,6 @@ export function PaymentForm({ orderId, currency, customer }: PaymentFormProps) {
       });
 
       document.body.appendChild(formEl);
-
       formEl.submit();
     } catch (err) {
       console.error(err);
@@ -118,6 +118,8 @@ export function PaymentForm({ orderId, currency, customer }: PaymentFormProps) {
       setIsSubmitting(false);
     }
   });
+
+  const isDelegateFeeOrder = order?.items?.some(item => item.item_code === 'DELEGATE_FEE');
 
   return (
     <Grid>
@@ -268,6 +270,11 @@ export function PaymentForm({ orderId, currency, customer }: PaymentFormProps) {
                     <Group key={item.id} justify="space-between">
                       <Text size="sm">
                         {item.name} (x{item.quantity})
+                        {isDelegateFeeOrder && item.description && (
+                          <Text size="xs" c="dimmed">
+                            {item.description}
+                          </Text>
+                        )}
                       </Text>
                       <Text size="sm">
                         {currency} {(item.price * item.quantity).toFixed(2)}

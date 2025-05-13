@@ -63,7 +63,6 @@ const navigationData: NavigationItem[] = [
     link: '/payments',
     label: 'Delegate Payments',
     icon: IconCreditCard,
-    // disabledMessage: 'Coming soon!',
   },
   {
     link: '/contact',
