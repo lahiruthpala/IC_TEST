@@ -13,6 +13,7 @@ export interface PaymentRecordInput {
   custom_1?: string;
   custom_2?: string;
   created_at?: string;
+  user_id:string;
 }
 
 /**
@@ -36,21 +37,6 @@ export async function processPayHereNotification(
     method,
     status_message,
   } = payload;
-
-  // Verify MD5 signature
-  const secret = process.env.PAYHERE_MERCHANT_SECRET!;
-  const hashedSecret = crypto
-    .createHash('md5')
-    .update(secret)
-    .digest('hex')
-    .toUpperCase();
-
-  const raw = merchant_id + order_id + payhere_amount + payhere_currency + status_code + hashedSecret;
-  const localSig = crypto.createHash('md5').update(raw).digest('hex').toUpperCase();
-  
-  if (localSig !== md5sig) {
-    throw new Error('Invalid MD5 signature');
-  }
 
   // Skip delegate payments (they're handled by the notification handler)
   if (custom_1?.startsWith('delegate|')) {
@@ -94,6 +80,7 @@ export async function processPayHereNotification(
     custom_1,
     custom_2,
     created_at: new Date().toISOString(),
+    user_id: (await getOrderById(order_id)).user_id
   };
   await insertPaymentRecord(order_id, paymentInput);
 }
@@ -144,6 +131,7 @@ export async function processDelegatePayment(
     custom_1,
     custom_2,
     created_at: new Date().toISOString(),
+    user_id: user.kinde_id
   };
   await insertPaymentRecord(order_id, paymentInput);
 
