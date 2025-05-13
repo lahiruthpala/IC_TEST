@@ -1,7 +1,6 @@
 import crypto from 'crypto';
 import { getOrderById, updateOrderStatus, insertPaymentRecord } from './paymentRepository';
 import { OrderStatus } from '@/lib/store/types';
-import { updateUserPaymentStatus, getUserByKindeId } from '@/lib/users/db';
 
 export interface PaymentRecordInput {
   payment_id: string;
@@ -13,13 +12,10 @@ export interface PaymentRecordInput {
   custom_1?: string;
   custom_2?: string;
   created_at?: string;
-  user_id:string;
 }
 
 /**
- * Verifies MD5 signature and processes payment notification.
- * For delegate payments (marked with custom_1 starting with "delegate|"), 
- * only updates the payments table. The users.payment column is updated by the notification handler.
+ * Verifies MD5 signature and persists order + payment.
  */
 export async function processPayHereNotification(
   payload: Record<string, string>
@@ -38,38 +34,46 @@ export async function processPayHereNotification(
     status_message,
   } = payload;
 
-  // Skip delegate payments (they're handled by the notification handler)
-  if (custom_1?.startsWith('delegate|')) {
-    return;
+  const secret = process.env.PAYHERE_MERCHANT_SECRET!;
+  const hashedSecret = crypto
+    .createHash('md5')
+    .update(secret)
+    .digest('hex')
+    .toUpperCase();
+
+  const raw = merchant_id + order_id + payhere_amount + payhere_currency + status_code + hashedSecret;
+  const localSig = crypto.createHash('md5').update(raw).digest('hex').toUpperCase();
+  if (localSig !== md5sig) {
+    throw new Error('Invalid MD5 signature');
   }
 
-  // For merch orders, proceed with normal processing
+  // Ensure order exists
   await getOrderById(order_id);
 
-  // Update order status
+  // Update status
   let newStatus: OrderStatus;
   switch (status_code) {
     case '2':
-      newStatus = 'paid';
+      newStatus = 'paid';      // success
       break;
     case '0':
-      newStatus = 'payment pending';
+      newStatus = 'payment pending';   // pending
       break;
     case '-1':
-      newStatus = 'payment cancelled';
+      newStatus = 'payment cancelled'; // canceled
       break;
     case '-2':
-      newStatus = 'payment failed';
+      newStatus = 'payment failed';    // failed
       break;
     case '-3':
-      newStatus = 'charged back';
+      newStatus = 'charged back'; // chargedback
       break;
     default:
-      newStatus = 'failed';
+      newStatus = 'failed';    // fallback
   }
   await updateOrderStatus(order_id, newStatus, 'payhere-webhook');
 
-  // Record payment in payments table
+  // Record payment
   const paymentInput: PaymentRecordInput = {
     payment_id,
     payhere_amount: parseFloat(payhere_amount),
@@ -80,61 +84,6 @@ export async function processPayHereNotification(
     custom_1,
     custom_2,
     created_at: new Date().toISOString(),
-    user_id: (await getOrderById(order_id)).user_id
   };
   await insertPaymentRecord(order_id, paymentInput);
-}
-
-/**
- * Handles delegate payment completion (called from notification handler)
- */
-export async function processDelegatePayment(
-  payload: Record<string, string>
-): Promise<void> {
-  const {
-    order_id,
-    payment_id,
-    payhere_amount,
-    payhere_currency,
-    status_code,
-    custom_1,
-    custom_2,
-    method,
-    status_message,
-  } = payload;
-
-  // Only process successful payments
-  if (status_code !== '2') {
-    return;
-  }
-
-  // Extract user email from custom_1 (format: "delegate|email")
-  const email = custom_1?.split('|')[1];
-  if (!email) {
-    throw new Error('Invalid delegate payment format');
-  }
-
-  // Get user record
-  const user = await getUserByKindeId(email);
-  if (!user) {
-    throw new Error('User not found');
-  }
-
-  // Record payment in payments table
-  const paymentInput: PaymentRecordInput = {
-    payment_id,
-    payhere_amount: parseFloat(payhere_amount),
-    payhere_currency,
-    status_code,
-    method,
-    status_message,
-    custom_1,
-    custom_2,
-    created_at: new Date().toISOString(),
-    user_id: user.kinde_id
-  };
-  await insertPaymentRecord(order_id, paymentInput);
-
-  // Update user's payment status
-  await updateUserPaymentStatus(user.kinde_id, payment_id);
 }
